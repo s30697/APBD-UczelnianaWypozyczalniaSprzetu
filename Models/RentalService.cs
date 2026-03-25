@@ -3,8 +3,20 @@
 public class RentalService
 {
     private readonly List<Rental> _rentals = new List<Rental>();
+    private readonly List<Equipment> _equipmentCatalog = new List<Equipment>();
+    private readonly List<User> _users = new List<User>();
 
     private const decimal PenaltyPerDay = 5.0m;
+    
+    public void RegisterEquipment(Equipment equipment)
+    {
+        _equipmentCatalog.Add(equipment);
+    }
+
+    public void RegisterUser(User user)
+    {
+        _users.Add(user);
+    }
 
     public Rental RentEquipment(User user, Equipment equipment, int days)
     {
@@ -21,9 +33,7 @@ public class RentalService
         }
         
         Rental newRental = new Rental(user, equipment, days);
-        
         equipment.MarkAsUnavailable();
-        
         _rentals.Add(newRental);
         
         return newRental;
@@ -48,5 +58,25 @@ public class RentalService
                 rental.SetPenalty(totalPenalty);
             }
         }
+    }
+    
+    public List<Equipment> GetAllEquipment()
+    {
+        return _equipmentCatalog;
+    }
+
+    public List<Equipment> GetAvailableEquipment()
+    {
+        return _equipmentCatalog.Where(e => e.IsAvailable).ToList();
+    }
+
+    public List<Rental> GetActiveRentalsForUser(User user)
+    {
+        return _rentals.Where(r => r.User.Id == user.Id && r.ActualReturnDate == null).ToList();
+    }
+
+    public List<Rental> GetOverdueRentals()
+    {
+        return _rentals.Where(r => r.IsOverdue && r.ActualReturnDate == null).ToList();
     }
 }
