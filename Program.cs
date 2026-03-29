@@ -1,8 +1,11 @@
-﻿using UczelnianaWypozyczalnia;
-using UczelnianaWypozyczalnia.Models;
+﻿using UczelnianaWypozyczalnia.Models;
+using UczelnianaWypozyczalnia.UI;
 
 RentalService service = new RentalService();
-MenuOperations menuOperations = new MenuOperations(service);
+UserUI userUI = new UserUI(service);
+EquipmentUI equipmentUI = new EquipmentUI(service);
+RentalUI rentalUI = new RentalUI(service);
+ReportUI reportUI = new ReportUI(service);
 
 SeedData(service);
 
@@ -16,6 +19,10 @@ while (!exit)
     Console.WriteLine("4. Dodaj nowy sprzęt");
     Console.WriteLine("5. Wypożycz sprzęt");
     Console.WriteLine("6. Zwróć sprzęt");
+    Console.WriteLine("7. Zgłoś niedostępność sprzętu");
+    Console.WriteLine("8. Wyświetl aktywne wypożyczenia użytkownika");
+    Console.WriteLine("9. Wyświetl przeterminowane wypożyczenia");
+    Console.WriteLine("10. Generuj raport podsumowujący");
     Console.WriteLine("0. Zakończ program");
     Console.Write("Wybierz opcję: ");
     
@@ -26,22 +33,34 @@ while (!exit)
         switch (choice)
         {
             case "1":
-                menuOperations.ShowEquipment(onlyAvailable: false);
+                equipmentUI.ShowEquipment(onlyAvailable: false);
                 break;
             case "2":
-                menuOperations.ShowEquipment(onlyAvailable: true);
+                equipmentUI.ShowEquipment(onlyAvailable: true);
                 break;
             case "3":
-                menuOperations.AddNewUserInteractive(); 
+                userUI.AddNewUser(); 
                 break;
             case "4":
-                menuOperations.AddNewEquipmentInteractive(); 
+                equipmentUI.AddNewEquipment(); 
                 break;
             case "5":
-                menuOperations.RentEquipmentInteractive();
+                rentalUI.RentEquipment();
                 break;
             case "6":
-                menuOperations.ReturnEquipmentInteractive();
+                rentalUI.ReturnEquipment();
+                break;
+            case "7":
+                equipmentUI.MarkEquipmentUnavailable();
+                break;
+            case "8":
+                rentalUI.ShowUserActiveRentals();
+                break;
+            case "9":
+                rentalUI.ShowOverdueRentals();
+                break;
+            case "10":
+                reportUI.GenerateSummaryReport();
                 break;
             case "0":
                 exit = true;
