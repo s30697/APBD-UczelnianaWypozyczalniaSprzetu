@@ -18,10 +18,13 @@ Oto jak w moim kodzie widać dbałość o dobre praktyki:
 Początkowo całe menu i interakcje znajdowały się w jednej klasie, co było trudne w utrzymaniu. Rozbiłem więc ten kod na mniejsze, wyspecjalizowane pliki w folderze `UI`. Na przykład `UserUI.cs` zajmuje się tylko wprowadzaniem danych studenta/pracownika, a `RentalUI.cs` tylko procesem wydawania i zwracania. Dzięki temu każda klasa ma jeden konkretny powód do ewentualnej zmiany.
 
 ### 2. Kohezja (Spójność logiki)
-Aby zachować wysoką kohezję, cała "matematyka" i zasady biznesowe siedzą wyłącznie w klasie `RentalService`. Klasy z folderu `UI` nie dodają sprzętu bezpośrednio do list i nie liczą same kar za opóźnienia – po prostu przekazują dane do `RentalService` i odbierają gotowe wyniki. Dzięki temu logika wypożyczeń jest silnie skupiona w jednym miejscu, a nie rozrzucona po całym interfejsie.
+Aby zachować wysoką kohezję, zasady biznesowe siedzą wyłącznie w klasie `RentalService`. Klasy z folderu `UI` nie dodają sprzętu bezpośrednio do list i nie liczą same kar za opóźnienia – po prostu przekazują dane do `RentalService` i odbierają gotowe wyniki. Dzięki temu logika wypożyczeń jest silnie skupiona w jednym miejscu, a nie rozrzucona po całym interfejsie.
 
 ### 3. Coupling (Sprzężenie) i chronienie stanu
 Zadbałem o to, aby klasy nie ingerowały w swój stan wewnętrzny w sposób niekontrolowany (niskie sprzężenie). Widać to dobrze w klasie abstrakcyjnej `Equipment`. Właściwość `IsAvailable` posiada `protected set`. Oznacza to, że z zewnątrz (np. z warstwy UI) nie da się "na sztywno" wpisać `sprzet.IsAvailable = false`. Trzeba w tym celu wywołać konkretną metodę `MarkAsUnavailable()`. Zabezpiecza to obiekt przed przypadkowym zepsuciem jego stanu.
 
 ### 4. Dziedziczenie wynikające z domeny
 Zamiast tworzyć jedną klasę `User` i sprawdzać instrukcjami `if/else`, czy to student (limit 2 sztuk) czy pracownik (limit 5 sztuk), użyłem klas pochodnych `Student` i `Employee`. Każda z nich sama definiuje (nadpisuje) swoją właściwość `MaxRentals`. Dzięki temu system jest elastyczny – jeśli w przyszłości dojdzie np. typ `Wykładowca`, po prostu dodam nową klasę bez ruszania istniejącej logiki walidacji.
+
+### 5. Zautomatyzowany scenariusz weryfikacyjny
+W aplikacji zaimplementowałem funkcję scenariusza demonstracyjnego, która pozwala zaobserwować działanie systemu w praktyce bez konieczności ręcznego wprowadzania danych. Scenariusz ten w jednym cyklu prezentuje m.in. poprawne wypożyczenie, automatyczną odmowę wydania sprzętu w przypadku niedostępności lub przekroczenia limitów, a także proces naliczania kar przy zwrotach po terminie.
