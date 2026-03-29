@@ -2,11 +2,11 @@
 
 namespace UczelnianaWypozyczalnia.UI;
 
-public class UserUI
+public class UserUi
 {
     private readonly RentalService _service;
 
-    public UserUI(RentalService service)
+    public UserUi(RentalService service)
     {
         _service = service;
     }

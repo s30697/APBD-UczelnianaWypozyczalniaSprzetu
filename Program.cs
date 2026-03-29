@@ -2,10 +2,10 @@
 using UczelnianaWypozyczalnia.UI;
 
 RentalService service = new RentalService();
-UserUI userUI = new UserUI(service);
-EquipmentUI equipmentUI = new EquipmentUI(service);
-RentalUI rentalUI = new RentalUI(service);
-ReportUI reportUI = new ReportUI(service);
+UserUi userUi = new UserUi(service);
+EquipmentUi equipmentUi = new EquipmentUi(service);
+RentalUi rentalUi = new RentalUi(service);
+ReportUi reportUi = new ReportUi(service);
 
 SeedData(service);
 
@@ -23,6 +23,7 @@ while (!exit)
     Console.WriteLine("8. Wyświetl aktywne wypożyczenia użytkownika");
     Console.WriteLine("9. Wyświetl przeterminowane wypożyczenia");
     Console.WriteLine("10. Generuj raport podsumowujący");
+    Console.WriteLine("11. Uruchom scenariusz demonstracyjny");
     Console.WriteLine("0. Zakończ program");
     Console.Write("Wybierz opcję: ");
     
@@ -33,34 +34,37 @@ while (!exit)
         switch (choice)
         {
             case "1":
-                equipmentUI.ShowEquipment(onlyAvailable: false);
+                equipmentUi.ShowEquipment(onlyAvailable: false);
                 break;
             case "2":
-                equipmentUI.ShowEquipment(onlyAvailable: true);
+                equipmentUi.ShowEquipment(onlyAvailable: true);
                 break;
             case "3":
-                userUI.AddNewUser(); 
+                userUi.AddNewUser(); 
                 break;
             case "4":
-                equipmentUI.AddNewEquipment(); 
+                equipmentUi.AddNewEquipment(); 
                 break;
             case "5":
-                rentalUI.RentEquipment();
+                rentalUi.RentEquipment();
                 break;
             case "6":
-                rentalUI.ReturnEquipment();
+                rentalUi.ReturnEquipment();
                 break;
             case "7":
-                equipmentUI.MarkEquipmentUnavailable();
+                equipmentUi.MarkEquipmentUnavailable();
                 break;
             case "8":
-                rentalUI.ShowUserActiveRentals();
+                rentalUi.ShowUserActiveRentals();
                 break;
             case "9":
-                rentalUI.ShowOverdueRentals();
+                rentalUi.ShowOverdueRentals();
                 break;
             case "10":
-                reportUI.GenerateSummaryReport();
+                reportUi.GenerateSummaryReport();
+                break;
+            case "11":
+                RunDemo(service, reportUi);
                 break;
             case "0":
                 exit = true;
@@ -102,3 +106,50 @@ void SeedData(RentalService s)
     s.RegisterEquipment(new GraphicsTablet("Wacom Intuos Pro", "A4", false));
     s.RegisterEquipment(new GraphicsTablet("Huion Kamvas 22", "21.5 cala", true));
 }
+
+void RunDemo(RentalService s, ReportUi rUi)
+{
+    Console.WriteLine("\nURUCHAMIANIE SCENARIUSZA DEMONSTRACYJNEGO");
+
+    var demoStudent = new Student("Marek", "Demo", "marek@demo.pl");
+    var demoEmployee = new Employee("Ewa", "Test", "ewa@test.pl");
+    s.RegisterUser(demoStudent);
+    s.RegisterUser(demoEmployee);
+
+    var demoLaptop = new Laptop("Demo Laptop", "M1 Chip", 16);
+    var demoCamera = new Camera("Demo Camera", "4K Professional", 50);
+    s.RegisterEquipment(demoLaptop);
+    s.RegisterEquipment(demoCamera);
+    Console.WriteLine("-> Dodano użytkowników i sprzęt demonstracyjny.");
+
+    var rental = s.RentEquipment(demoStudent, demoLaptop, 5);
+    Console.WriteLine($"-> Pomyślnie wypożyczono {demoLaptop.Name} użytkownikowi {demoStudent.FirstName}.");
+
+    Console.WriteLine("-> Próba wypożyczenia tego samego laptopa przez inną osobę.");
+    try {
+        s.RentEquipment(demoEmployee, demoLaptop, 2);
+    } catch (Exception ex) {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"-> Przechwycono błąd: {ex.Message}");
+        Console.ResetColor();
+    }
+
+    s.ReturnEquipment(rental, DateTime.Now);
+    Console.WriteLine($"-> Zwrot sprzętu {demoLaptop.Name} w terminie. Kara: {rental.Penalty} PLN.");
+    var rentalLate = s.RentEquipment(demoEmployee, demoCamera, 1);
+    
+    DateTime lateDate = rentalLate.PlannedReturnDate.AddDays(10);
+    s.ReturnEquipment(rentalLate, lateDate);
+    
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"-> Zwrot {demoCamera.Name} po terminie (10 dni). Kara: {rentalLate.Penalty} PLN.");
+    Console.ResetColor();
+
+    Console.WriteLine("\n[RAPORT KOŃCOWY SCENARIUSZA]");
+    rUi.GenerateSummaryReport();
+    
+    Console.WriteLine("KONIEC SCENARIUSZA");
+}
+
+
+
