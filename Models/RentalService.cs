@@ -79,4 +79,14 @@ public class RentalService
     {
         return _rentals.Where(r => r.IsOverdue && r.ActualReturnDate == null).ToList();
     }
+    
+    public List<User> GetAllUsers()
+    {
+        return _users;
+    }
+
+    public List<Rental> GetAllActiveRentals()
+    {
+        return _rentals.Where(r => r.ActualReturnDate == null).ToList();
+    }
 }
